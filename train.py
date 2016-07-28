@@ -4,6 +4,7 @@ from optparse import OptionParser
 from multiprocessing import Process, Queue
 import time
 from util import *
+from feature import *
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -22,10 +23,14 @@ def main():
         sys.exit(1)
 
     fq_files = get_arg_files()
-    print(fq_files)
+    for fq in fq_files:
+        extractor = FeatureExtractor(fq)
+        extractor.extract()
+        print("=====================")
+        print(fq)
+        print(extractor.percents)
     
     (options, args) = parseCommand()
-    print(options)
     time2 = time.time()
     print('Time used: ' + str(time2-time1))
 

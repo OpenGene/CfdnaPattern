@@ -6,7 +6,7 @@ import os,sys
 def is_fastq(f):
     fqext = (".fq", ".fastq", "fq.gz", ".fastq.gz")
     for ext in fqext:
-        if f.endswith(ext):
+        if f.endswith(ext) and not os.path.isdir(f):
             return True
     return False
 
