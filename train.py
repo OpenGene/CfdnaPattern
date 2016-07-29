@@ -45,11 +45,12 @@ def main():
     print("start training...")
     clf = svm.LinearSVC()
     clf.fit(np.array(data), np.array(label))
+    print("\nscore:")
     print(clf.score(np.array(data), np.array(label)))
     
     (options, args) = parseCommand()
     time2 = time.time()
-    print('Time used: ' + str(time2-time1))
+    print('\nTime used: ' + str(time2-time1))
 
 if __name__  == "__main__":
     main()
