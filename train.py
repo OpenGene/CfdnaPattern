@@ -26,9 +26,9 @@ def main():
     for fq in fq_files:
         extractor = FeatureExtractor(fq)
         extractor.extract()
-        print("=====================")
+        print("")
         print(fq)
-        print(extractor.percents)
+        print(extractor.feature())
     
     (options, args) = parseCommand()
     time2 = time.time()

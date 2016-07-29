@@ -74,3 +74,12 @@ class FeatureExtractor:
                 total += self.base_counts[base][pos]
             for base in ALL_BASES:
                 self.percents[base][pos] = float(self.base_counts[base][pos])/float(total)
+
+    def feature(self):
+        #calc percents of each base
+        feature_vector = []
+        for pos in xrange(self.stat_len):
+            total = 0
+            for base in ALL_BASES:
+                feature_vector.append(self.percents[base][pos])
+        return feature_vector
