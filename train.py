@@ -5,6 +5,8 @@ from multiprocessing import Process, Queue
 import time
 from util import *
 from feature import *
+import numpy as np
+from sklearn import svm
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -22,13 +24,28 @@ def main():
         print('python3 is not supported yet, please use python2')
         sys.exit(1)
 
+    data = []
+    label = []
     fq_files = get_arg_files()
     for fq in fq_files:
         extractor = FeatureExtractor(fq)
         extractor.extract()
+        feature = extractor.feature()
+        if "cfdna" in fq.lower():
+            data.append(feature)
+            label.append(1)
+        elif "gdna" in fq.lower() or "ffpe" in fq.lower():
+            data.append(feature)
+            label.append(0)
+
         print("")
         print(fq)
-        print(extractor.feature())
+        print(feature)
+
+    print("start training...")
+    clf = svm.LinearSVC()
+    clf.fit(np.array(data), np.array(label))
+    print(clf.score(np.array(data), np.array(label)))
     
     (options, args) = parseCommand()
     time2 = time.time()
