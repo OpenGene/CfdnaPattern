@@ -76,6 +76,9 @@ class FeatureExtractor:
                 self.percents[base][pos] = float(self.base_counts[base][pos])/float(total)
 
     def feature(self):
+        # bad feature
+        if self.stat_len < STAT_LEN_LIMIT:
+            return None
         #calc percents of each base
         feature_vector = []
         for pos in xrange(self.stat_len):
