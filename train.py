@@ -55,7 +55,6 @@ def preprocess(options):
         if feature == None:
             print("======== Warning: bad feature from:")
             print(fq)
-            print(feature)
             continue
 
         if is_file_type(fq, cfdna_flags):
