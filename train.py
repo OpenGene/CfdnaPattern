@@ -6,7 +6,7 @@ import time
 from util import *
 from feature import *
 import numpy as np
-from sklearn import svm
+from sklearn import svm, neighbors
 import random
 
 def parseCommand():
@@ -17,6 +17,8 @@ def parseCommand():
         help = "specify which file to store the extracted features from training set.")
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
+    parser.add_option("-a", "--algorithm", dest = "algorithm", default = "svm",
+        help = "specify which algorithm to use for classfication, candidates are svm/knn, default is svm.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
         help = "specify the filename flag of cfdna files, separated by semicolon")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
@@ -114,6 +116,19 @@ def train_svm(data, label, samples, options):
 
     print("\naverage score: " + str(scores/options.passes))
 
+def train_knn(data, label, samples, options):
+    print("\ntraining and validating using KNN for " + str(options.passes) + " times...")
+    scores = 0
+    for i in xrange(options.passes):
+        training_set, validation_set = random_separate(data, label, samples)
+        knn = neighbors.KNeighborsClassifier()
+        knn.fit(np.array(training_set["data"]), np.array(training_set["label"]))
+        score = knn.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        print("score: " + str(score))
+        scores += score
+
+    print("\naverage score: " + str(scores/options.passes))
+
 def main():
     time1 = time.time()
     if sys.version_info.major >2:
@@ -134,7 +149,12 @@ def main():
             print("no gdna training data")
         sys.exit(1)
 
-    train_svm(data, label, samples, options)
+    if options.algorithm.lower() == "svm":
+        train_svm(data, label, samples, options)
+    elif options.algorithm.lower() == "knn":
+        train_knn(data, label, samples, options)
+    else:
+        print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
 
     time2 = time.time()
     print('\nTime used: ' + str(time2-time1))
