@@ -119,15 +119,17 @@ def main():
             print("no gdna training data")
         sys.exit(1)
 
-    training_set, validation_set = random_separate(data, label, samples)
+    print("\ntraining and validating for 100 times...")
+    scores = 0
+    for i in xrange(100):
+        training_set, validation_set = random_separate(data, label, samples)
+        clf = svm.LinearSVC()
+        clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
+        score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        print("score: " + str(score))
+        scores += score
 
-    print("\ntraining...")
-    clf = svm.LinearSVC()
-    print("done")
-    print("\nevaluating...")
-    clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
-    score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
-    print("score: " + str(score))
+    print("\naverage score: " + str(scores/100.0))
     time2 = time.time()
     print('\nTime used: ' + str(time2-time1))
 
