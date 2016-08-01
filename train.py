@@ -7,6 +7,7 @@ from util import *
 from feature import *
 import numpy as np
 from sklearn import svm
+import random
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -67,6 +68,37 @@ def preprocess(options):
 
     return data, label, samples
 
+def random_separate(data, label, samples, training_set_percentage = 0.8):
+    training_set = {"data":[], "label":[], "samples":[]}
+    validation_set = {"data":[], "label":[], "samples":[]}
+    total_num = len(data)
+    training_num = int(round(total_num * training_set_percentage))
+    if training_num == total_num:
+        training_num -= 1
+    if training_num < 2:
+        training_num = 2
+
+    # we should make sure the training set contains both positive and negative samples
+    while( len(np.unique(training_set["label"])) <= 1 ):
+        training_ids = random.sample([x for x in xrange(total_num)], training_num)
+        training_set["data"] = []
+        training_set["label"] = []
+        training_set["samples"] = []
+        validation_set["data"] = []
+        validation_set["label"] = []
+        validation_set["samples"] = []
+        for i in xrange(total_num):
+            if i in training_ids:
+                training_set["data"].append(data[i])
+                training_set["label"].append(label[i])
+                training_set["samples"].append(samples[i])
+            else:
+                validation_set["data"].append(data[i])
+                validation_set["label"].append(label[i])
+                validation_set["samples"].append(samples[i])
+
+    return training_set, validation_set
+
 def main():
     time1 = time.time()
     if sys.version_info.major >2:
@@ -87,12 +119,14 @@ def main():
             print("no gdna training data")
         sys.exit(1)
 
+    training_set, validation_set = random_separate(data, label, samples)
+
     print("\ntraining...")
     clf = svm.LinearSVC()
     print("done")
     print("\nevaluating...")
-    clf.fit(np.array(data), np.array(label))
-    score = clf.score(np.array(data), np.array(label))
+    clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
+    score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
     print("score: " + str(score))
     time2 = time.time()
     print('\nTime used: ' + str(time2-time1))
