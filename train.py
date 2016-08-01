@@ -28,13 +28,7 @@ def is_file_type(filename, file_flags):
             return True
     return False
 
-def main():
-    time1 = time.time()
-    if sys.version_info.major >2:
-        print('python3 is not supported yet, please use python2')
-        sys.exit(1)
-
-    (options, args) = parseCommand()
+def preprocess(options):
     cfdna_flags = options.cfdna_flag.split(";")
     other_flags = options.other_flag.split(";")
     print("cfdna file flags:")
@@ -45,12 +39,14 @@ def main():
     print("\nextracting features...")
     data = []
     label = []
+    samples = []
     fq_files = get_arg_files()
+    number = 0
     for fq in fq_files:
         if is_file_type(fq, cfdna_flags) == False and is_file_type(fq, other_flags) == False:
             continue
-
-        print(fq)
+        number += 1
+        print(str(number) + ": " + fq)
 
         extractor = FeatureExtractor(fq)
         extractor.extract()
@@ -68,6 +64,29 @@ def main():
         elif is_file_type(fq, other_flags):
             data.append(feature)
             label.append(0)
+        samples.append(fq)
+
+    return data, label, samples
+
+def main():
+    time1 = time.time()
+    if sys.version_info.major >2:
+        print('python3 is not supported yet, please use python2')
+        sys.exit(1)
+
+    (options, args) = parseCommand()
+
+    data, label, samples = preprocess(options)
+
+    if len(data) == 0:
+        print("no enough training data, usage:\n\tpython training.py <fastq_files>\twildcard(*) is supported\n")
+        sys.exit(1)
+    elif len(np.unique(label)) < 2:
+        if np.unique(label) == 0:
+            print("no cfdna training data")
+        else:
+            print("no gdna training data")
+        sys.exit(1)
 
     print("\ntraining...")
     clf = svm.LinearSVC()
