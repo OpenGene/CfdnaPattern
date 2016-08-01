@@ -21,6 +21,8 @@ def parseCommand():
         help = "specify the filename flag of cfdna files, separated by semicolon")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
         help = "specify the filename flag of other files, separated by semicolon.")
+    parser.add_option("-p", "--passes", dest = "passes", type="int", default = 10,
+        help = "specify how many passes to do training and validating, default is 10.")
     return parser.parse_args()
 
 def is_file_type(filename, file_flags):
@@ -99,6 +101,19 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
 
     return training_set, validation_set
 
+def train_svm(data, label, samples, options):
+    print("\ntraining and validating using SVM for " + str(options.passes) + " times...")
+    scores = 0
+    for i in xrange(options.passes):
+        training_set, validation_set = random_separate(data, label, samples)
+        clf = svm.LinearSVC()
+        clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
+        score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        print("score: " + str(score))
+        scores += score
+
+    print("\naverage score: " + str(scores/options.passes))
+
 def main():
     time1 = time.time()
     if sys.version_info.major >2:
@@ -119,17 +134,8 @@ def main():
             print("no gdna training data")
         sys.exit(1)
 
-    print("\ntraining and validating for 100 times...")
-    scores = 0
-    for i in xrange(100):
-        training_set, validation_set = random_separate(data, label, samples)
-        clf = svm.LinearSVC()
-        clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
-        score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
-        print("score: " + str(score))
-        scores += score
+    train_svm(data, label, samples, options)
 
-    print("\naverage score: " + str(scores/100.0))
     time2 = time.time()
     print('\nTime used: ' + str(time2-time1))
 
