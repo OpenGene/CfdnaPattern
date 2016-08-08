@@ -103,29 +103,25 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
 
     return training_set, validation_set
 
-def train_svm(data, label, samples, options):
-    print("\ntraining and validating using SVM for " + str(options.passes) + " times...")
+def train(model, data, label, samples, options):
+    print("\ntraining and validating for " + str(options.passes) + " times...")
     scores = 0
     for i in xrange(options.passes):
+        print("\npass " + str(i+1) + ":")
         training_set, validation_set = random_separate(data, label, samples)
-        clf = svm.LinearSVC()
-        clf.fit(np.array(training_set["data"]), np.array(training_set["label"]))
-        score = clf.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        model = svm.LinearSVC()
+        model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
+        # get scores
+        score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
         print("score: " + str(score))
         scores += score
 
-    print("\naverage score: " + str(scores/options.passes))
-
-def train_knn(data, label, samples, options):
-    print("\ntraining and validating using KNN for " + str(options.passes) + " times...")
-    scores = 0
-    for i in xrange(options.passes):
-        training_set, validation_set = random_separate(data, label, samples)
-        knn = neighbors.KNeighborsClassifier()
-        knn.fit(np.array(training_set["data"]), np.array(training_set["label"]))
-        score = knn.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
-        print("score: " + str(score))
-        scores += score
+        # predict
+        arr = np.array(validation_set["data"])
+        for v in xrange(len(validation_set["data"])):
+            result = model.predict(arr[v:v+1])
+            if result[0] != validation_set["label"][v]:
+                print("Truth: " + str(validation_set["label"][v]) + ", predicted: " + str(result[0]) + ": " + validation_set["samples"][v])
 
     print("\naverage score: " + str(scores/options.passes))
 
@@ -150,9 +146,11 @@ def main():
         sys.exit(1)
 
     if options.algorithm.lower() == "svm":
-        train_svm(data, label, samples, options)
+        model = svm.LinearSVC()
+        train(model, data, label, samples, options)
     elif options.algorithm.lower() == "knn":
-        train_knn(data, label, samples, options)
+        model = neighbors.KNeighborsClassifier()
+        train(model, data, label, samples, options)
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
 
