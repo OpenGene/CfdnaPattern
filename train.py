@@ -106,6 +106,7 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
 def train(model, data, label, samples, options):
     print("\ntraining and validating for " + str(options.passes) + " times...")
     scores = 0
+    wrong_files = []
     for i in xrange(options.passes):
         print("\npass " + str(i+1) + ":")
         training_set, validation_set = random_separate(data, label, samples)
@@ -122,8 +123,13 @@ def train(model, data, label, samples, options):
             result = model.predict(arr[v:v+1])
             if result[0] != validation_set["label"][v]:
                 print("Truth: " + str(validation_set["label"][v]) + ", predicted: " + str(result[0]) + ": " + validation_set["samples"][v])
+                if validation_set["samples"][v] not in wrong_files:
+                    wrong_files.append(validation_set["samples"][v])
 
     print("\naverage score: " + str(scores/options.passes))
+    print("\nfiles that with wrong prediction at least once:")
+    for f in wrong_files:
+        print(f)
 
 def main():
     time1 = time.time()
