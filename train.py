@@ -23,7 +23,7 @@ def parseCommand():
         help = "specify the filename flag of cfdna files, separated by semicolon")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
         help = "specify the filename flag of other files, separated by semicolon.")
-    parser.add_option("-p", "--passes", dest = "passes", type="int", default = 10,
+    parser.add_option("-p", "--passes", dest = "passes", type="int", default = 100,
         help = "specify how many passes to do training and validating, default is 10.")
     return parser.parse_args()
 
@@ -127,9 +127,8 @@ def train(model, data, label, samples, options):
                     wrong_files.append(validation_set["samples"][v])
 
     print("\naverage score: " + str(scores/options.passes))
-    print("\nfiles that with wrong prediction at least once:")
-    for f in wrong_files:
-        print(f)
+    print("\n" + str(len(wrong_files)) + " files that with wrong prediction at least once:")
+    print(" ".join(wrong_files))
 
 def main():
     time1 = time.time()
