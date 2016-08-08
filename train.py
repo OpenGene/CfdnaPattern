@@ -8,6 +8,7 @@ from feature import *
 import numpy as np
 from sklearn import svm, neighbors
 import random
+import json
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -41,11 +42,25 @@ def preprocess(options):
     print("other file flags:")
     print(other_flags)
 
-    print("\nextracting features...")
     data = []
     label = []
     samples = []
     fq_files = get_arg_files()
+
+    # try to load from cache.json
+    json_file_name = "cache.json"
+    if os.path.exists(json_file_name) and os.access(json_file_name, os.R_OK):
+        json_file = open(json_file_name, "r")
+        json_loaded = json.loads(json_file.read())
+        if len(fq_files) == len(json_loaded["samples"]):
+            print("\nloaded from cache.json")
+            data = json_loaded["data"]
+            label = json_loaded["label"]
+            samples = json_loaded["samples"]
+            return data, label, samples
+
+    # cannot load from cache.json, we compute it
+    print("\nextracting features...")
     number = 0
     for fq in fq_files:
         if is_file_type(fq, cfdna_flags) == False and is_file_type(fq, other_flags) == False:
@@ -69,6 +84,21 @@ def preprocess(options):
             data.append(feature)
             label.append(0)
         samples.append(fq)
+
+    # save the data, label and samples to cache.json to speed up the training test
+    try:
+        json_file = open(json_file_name, "w")
+    except Exception:
+        return data, label, samples
+    if os.access(json_file_name, os.W_OK):
+        json_store = {}
+        json_store["data"]=data
+        json_store["label"]=label
+        json_store["samples"]=samples
+        print("\nsave to cache.json")
+        json_str = json.dumps(json_store)
+        json_file.write(json_str)
+        json_file.close()
 
     return data, label, samples
 
@@ -108,13 +138,12 @@ def train(model, data, label, samples, options):
     scores = 0
     wrong_files = []
     for i in xrange(options.passes):
-        print("\npass " + str(i+1) + ":")
         training_set, validation_set = random_separate(data, label, samples)
         model = svm.LinearSVC()
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
         score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
-        print("score: " + str(score))
+        print("pass " + str(i+1) + ", score: " + str(score) )
         scores += score
 
         # predict
@@ -122,12 +151,12 @@ def train(model, data, label, samples, options):
         for v in xrange(len(validation_set["data"])):
             result = model.predict(arr[v:v+1])
             if result[0] != validation_set["label"][v]:
-                print("Truth: " + str(validation_set["label"][v]) + ", predicted: " + str(result[0]) + ": " + validation_set["samples"][v])
+                #print("Truth: " + str(validation_set["label"][v]) + ", predicted: " + str(result[0]) + ": " + validation_set["samples"][v])
                 if validation_set["samples"][v] not in wrong_files:
                     wrong_files.append(validation_set["samples"][v])
 
     print("\naverage score: " + str(scores/options.passes))
-    print("\n" + str(len(wrong_files)) + " files that with wrong prediction at least once:")
+    print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
     print(" ".join(wrong_files))
 
 def main():
