@@ -39,8 +39,8 @@ def is_file_type(filename, file_flags):
 def preprocess(options):
     cfdna_flags = options.cfdna_flag.split(";")
     other_flags = options.other_flag.split(";")
-    print("cfdna file flags: " + ", ".join(cfdna_flags))
-    print("other file flags: " + ", ".join(other_flags))
+    print("cfdna file flags (-c <cfdna_flags>): " + ";".join(cfdna_flags))
+    print("other file flags (-o <other_flags>): " + ";".join(other_flags))
 
     data = []
     label = []
@@ -88,12 +88,15 @@ def preprocess(options):
             label.append(0)
         samples.append(fq)
 
+    if len(samples)<=2:
+        return data, label, samples
+
     # save the data, label and samples to cache.json to speed up the training test
     try:
         json_file = open(json_file_name, "w")
     except Exception:
         return data, label, samples
-    if len(samples)>2 and os.access(json_file_name, os.W_OK):
+    if os.access(json_file_name, os.W_OK):
         json_store = {}
         json_store["data"]=data
         json_store["label"]=label
