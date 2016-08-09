@@ -18,8 +18,8 @@ def parseCommand():
         help = "specify which file to store the extracted features from training set.")
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
-    parser.add_option("-a", "--algorithm", dest = "algorithm", default = "svm",
-        help = "specify which algorithm to use for classfication, candidates are svm/knn, default is svm.")
+    parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
+        help = "specify which algorithm to use for classfication, candidates are svm/knn, default is knn.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
         help = "specify the filename flag of cfdna files, separated by semicolon")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
@@ -37,10 +37,8 @@ def is_file_type(filename, file_flags):
 def preprocess(options):
     cfdna_flags = options.cfdna_flag.split(";")
     other_flags = options.other_flag.split(";")
-    print("cfdna file flags:")
-    print(cfdna_flags)
-    print("other file flags:")
-    print(other_flags)
+    print("cfdna file flags: " + ", ".join(cfdna_flags))
+    print("other file flags: " + ", ".join(other_flags))
 
     data = []
     label = []
@@ -52,12 +50,15 @@ def preprocess(options):
     if os.path.exists(json_file_name) and os.access(json_file_name, os.R_OK):
         json_file = open(json_file_name, "r")
         json_loaded = json.loads(json_file.read())
-        if len(fq_files) == len(json_loaded["samples"]):
-            print("\nloaded from cache.json")
+        print("\nfound cache.json, loading it now...")
+        if len(json_loaded["fq_files"]) == len(fq_files):
             data = json_loaded["data"]
             label = json_loaded["label"]
             samples = json_loaded["samples"]
+            print("cache is valid, if you want to do training again, delete cache.json")
             return data, label, samples
+        else:
+            print("cache is invalid")
 
     # cannot load from cache.json, we compute it
     print("\nextracting features...")
@@ -90,11 +91,12 @@ def preprocess(options):
         json_file = open(json_file_name, "w")
     except Exception:
         return data, label, samples
-    if os.access(json_file_name, os.W_OK):
+    if len(samples)>2 and os.access(json_file_name, os.W_OK):
         json_store = {}
         json_store["data"]=data
         json_store["label"]=label
         json_store["samples"]=samples
+        json_store["fq_files"]=fq_files
         print("\nsave to cache.json")
         json_str = json.dumps(json_store)
         json_file.write(json_str)
@@ -135,7 +137,8 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
 
 def train(model, data, label, samples, options):
     print("\ntraining and validating for " + str(options.passes) + " times...")
-    scores = 0
+    total_score = 0
+    scores = []
     wrong_files = []
     for i in xrange(options.passes):
         training_set, validation_set = random_separate(data, label, samples)
@@ -143,8 +146,8 @@ def train(model, data, label, samples, options):
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
         score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
-        print("pass " + str(i+1) + ", score: " + str(score) )
-        scores += score
+        total_score += score
+        scores.append(score)
 
         # predict
         arr = np.array(validation_set["data"])
@@ -155,7 +158,9 @@ def train(model, data, label, samples, options):
                 if validation_set["samples"][v] not in wrong_files:
                     wrong_files.append(validation_set["samples"][v])
 
-    print("\naverage score: " + str(scores/options.passes))
+    print("scores of all " + str(options.passes) + " passes:")
+    print(scores)
+    print("\naverage score: " + str(total_score/options.passes))
     print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
     print(" ".join(wrong_files))
 
