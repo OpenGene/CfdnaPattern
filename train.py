@@ -21,11 +21,13 @@ def parseCommand():
     parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
         help = "specify which algorithm to use for classfication, candidates are svm/knn, default is knn.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
-        help = "specify the filename flag of cfdna files, separated by semicolon")
+        help = "specify the filename flag of cfdna files, separated by semicolon. default is: cfdna")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
-        help = "specify the filename flag of other files, separated by semicolon.")
+        help = "specify the filename flag of other files, separated by semicolon. default is: gdna;ffpe")
     parser.add_option("-p", "--passes", dest = "passes", type="int", default = 100,
         help = "specify how many passes to do training and validating, default is 10.")
+    parser.add_option("-n", "--no_cache_check", dest = "no_cache_check", action='store_true', default = False,
+        help = "if the cache file exists, use it without checking the identity with input files")
     return parser.parse_args()
 
 def is_file_type(filename, file_flags):
@@ -51,7 +53,7 @@ def preprocess(options):
         json_file = open(json_file_name, "r")
         json_loaded = json.loads(json_file.read())
         print("\nfound cache.json, loading it now...")
-        if len(json_loaded["fq_files"]) == len(fq_files):
+        if options.no_cache_check or len(json_loaded["fq_files"]) == len(fq_files):
             data = json_loaded["data"]
             label = json_loaded["label"]
             samples = json_loaded["samples"]
