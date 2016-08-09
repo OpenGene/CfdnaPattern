@@ -81,6 +81,7 @@ class FeatureExtractor:
             return None
         #calc percents of each base
         feature_vector = []
+        # data is packed as values of ATCGATCGATCGATCGATCG
         for pos in xrange(self.stat_len):
             total = 0
             for base in ALL_BASES:
