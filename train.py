@@ -10,6 +10,7 @@ import numpy as np
 from sklearn import svm, neighbors
 import random
 import json
+from sklearn.externals import joblib
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -172,6 +173,9 @@ def train(model, data, label, samples, options):
     print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
     print(" ".join(wrong_files))
     plot_data_list(wrong_files, wrong_data, "figures")
+
+    print("\nsave model to: " + options.model_file)
+    joblib.dump(model, options.model_file)
 
 def main():
     time1 = time.time()
