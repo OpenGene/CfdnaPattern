@@ -15,6 +15,7 @@ except Exception:
 def plot_data_list(wrong_files, wrong_data, figure_dir):
     if not HAVE_MATPLOTLIB:
         print("\nmatplotlib not installed, skip plotting figures for files with wrong predictions")
+        return
 
     print("\nplotting figures for files with wrong predictions...")
     if not os.path.exists(figure_dir):
