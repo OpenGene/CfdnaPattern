@@ -1,5 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .DS_Store
+*_fig
 *figures
 cache.json
 __pycache__/

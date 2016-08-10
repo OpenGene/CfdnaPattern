@@ -64,6 +64,8 @@ def main():
 
     print(data)
 
+    plot_data_list(samples, data, "predict_fig")
+
     for i in xrange(len(samples)):
         print(get_type_name(labels[i]) + ": " + samples[i])
 

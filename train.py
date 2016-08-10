@@ -172,7 +172,7 @@ def train(model, data, label, samples, options):
     print("\naverage score: " + str(total_score/options.passes))
     print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
     print(" ".join(wrong_files))
-    plot_data_list(wrong_files, wrong_data, "figures")
+    plot_data_list(wrong_files, wrong_data, "train_fig")
 
     print("\nsave model to: " + options.model_file)
     joblib.dump(model, options.model_file)
