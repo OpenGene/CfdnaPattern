@@ -17,7 +17,6 @@ def plot_data_list(wrong_files, wrong_data, figure_dir):
         print("\nmatplotlib not installed, skip plotting figures for files with wrong predictions")
         return
 
-    print("\nplotting figures for files with wrong predictions...")
     if not os.path.exists(figure_dir):
         try:
             os.mkdir(figure_dir)

@@ -8,7 +8,7 @@ import numpy as np
 from sklearn import svm, neighbors
 import random
 import json
-from sklearn.externals import joblib
+import pickle
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -49,6 +49,12 @@ def get_type_name(label):
     else:
         return "not-cfdna"
 
+def load_model(options):
+    f = open(options.model_file, "rb")
+    model = pickle.load(f)
+    f.close()
+    return model
+
 def main():
     if sys.version_info.major >2:
         print('python3 is not supported yet, please use python2')
@@ -58,16 +64,14 @@ def main():
 
     data, samples = preprocess(options)
 
-    model = joblib.load(options.model_file) 
+    model = load_model(options)
 
     labels = model.predict(data)
 
-    print(data)
-
-    plot_data_list(samples, data, "predict_fig")
-
     for i in xrange(len(samples)):
         print(get_type_name(labels[i]) + ": " + samples[i])
+
+    plot_data_list(samples, data, "predict_fig")
 
 if __name__  == "__main__":
     main()

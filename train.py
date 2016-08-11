@@ -10,7 +10,7 @@ import numpy as np
 from sklearn import svm, neighbors
 import random
 import json
-from sklearn.externals import joblib
+import pickle
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
@@ -172,10 +172,19 @@ def train(model, data, label, samples, options):
     print("\naverage score: " + str(total_score/options.passes))
     print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
     print(" ".join(wrong_files))
+
+    print("\nplotting figures for files with wrong predictions...")
     plot_data_list(wrong_files, wrong_data, "train_fig")
 
+    save_model(model, options)
+
+def save_model(model, options):
     print("\nsave model to: " + options.model_file)
-    joblib.dump(model, options.model_file)
+    try:
+        f = open(options.model_file, "wb")
+        pickle.dump(model, f)
+    except Exception:
+        print("failed to write file")
 
 def main():
     time1 = time.time()
