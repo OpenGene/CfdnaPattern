@@ -150,7 +150,6 @@ def train(model, data, label, samples, options):
     wrong_data = []
     for i in xrange(options.passes):
         training_set, validation_set = random_separate(data, label, samples)
-        model = svm.LinearSVC()
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
         score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
@@ -182,7 +181,7 @@ def save_model(model, options):
     print("\nsave model to: " + options.model_file)
     try:
         f = open(options.model_file, "wb")
-        pickle.dump(model, f)
+        pickle.dump(model, f, True)
     except Exception:
         print("failed to write file")
 
@@ -210,7 +209,7 @@ def main():
         model = svm.LinearSVC()
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "knn":
-        model = neighbors.KNeighborsClassifier()
+        model = neighbors.KNeighborsClassifier(leaf_size=100)
         train(model, data, label, samples, options)
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
