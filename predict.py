@@ -50,7 +50,13 @@ def get_type_name(label):
         return "not-cfdna"
 
 def load_model(options):
-    f = open(options.model_file, "rb")
+    filename = options.model_file
+    if not os.path.exists(filename):
+        filename = os.path.join(os.path.dirname(sys.argv[0]), options.model_file)
+    if not os.path.exists(filename):
+        print("Error: the model file not found: " + options.model_file)
+        sys.exit(1)
+    f = open(filename, "rb")
     model = pickle.load(f)
     f.close()
     return model
