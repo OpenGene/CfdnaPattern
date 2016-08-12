@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys, os
 import fastq
 from optparse import OptionParser

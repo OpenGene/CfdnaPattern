@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 import sys, os
 from optparse import OptionParser
 import time
@@ -16,6 +17,8 @@ def parseCommand():
     parser = OptionParser(usage = usage, version = version)
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file stored the built model.")
+    parser.add_option("-q", "--quite", dest = "quite", action='store_true', default = False,
+        help = "only print those prediction conflicts with filename")
     return parser.parse_args()
 
 def preprocess(options):
@@ -75,7 +78,8 @@ def main():
     labels = model.predict(data)
 
     for i in xrange(len(samples)):
-        print(get_type_name(labels[i]) + ": " + samples[i])
+        if options.quite == False or (labels[i] == 0 and "cfdna" in samples[i].lower()) or (labels[i] == 1 and "cfdna" not in samples[i].lower()):
+            print(get_type_name(labels[i]) + ": " + samples[i])
 
     plot_data_list(samples, data, "predict_fig")
 
