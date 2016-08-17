@@ -13,6 +13,8 @@ python predict.py <fastq_file1> <fastq_file2> ...
 python predict.py *.fq
 ```
 
+***warning: this tool doesn't work for trimmed fastq***
+
 ## prediction output
 For each file in the command line, this tool will output a line `<prediction>: <filename>`, like
 ```
