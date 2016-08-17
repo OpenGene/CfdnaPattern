@@ -44,16 +44,16 @@ def plot_data(data, filename, title):
         for b in xrange(base_num):
             percents[ALL_BASES[b]][c] = float(data[c * base_num + b]) / float(total)
 
-    x = range(cycles)
+    x = range(1, cycles+1)
     plt.figure(1)
-    plt.title(title)
-    plt.xlim(0, cycles)
+    plt.title(title, size=10)
+    plt.xlim(1, cycles)
     max_y = 0.8
     for base in ALL_BASES:
         max_of_base = max(percents[base][0:cycles])
         max_y = max(max_y, max_of_base+0.05)
     plt.ylim(0.0, max_y )
-    plt.ylabel('Percents')
+    plt.ylabel('Ratio')
     plt.xlabel('Cycle')
     for base in ALL_BASES:
         plt.plot(x, percents[base][0:cycles], color = colors[base], label=base, alpha=0.5)
