@@ -44,9 +44,6 @@ python training.py <fastq_files> [options]
 Options:
   --version             show program's version number and exit
   -h, --help            show this help message and exit
-  -f FEATURE_FILE, --feature=FEATURE_FILE
-                        specify which file to store the extracted features
-                        from training set.
   -m MODEL_FILE, --model=MODEL_FILE
                         specify which file to store the built model.
   -a ALGORITHM, --algorithm=ALGORITHM
