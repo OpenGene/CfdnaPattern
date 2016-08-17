@@ -14,11 +14,9 @@ import json
 import pickle
 
 def parseCommand():
-    usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [-f feature_file] [-m model_file] "
+    usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [options] "
     version = "0.0.1"
     parser = OptionParser(usage = usage, version = version)
-    parser.add_option("-f", "--feature", dest = "feature_file", default = "features.json",
-        help = "specify which file to store the extracted features from training set.")
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
     parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
