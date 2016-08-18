@@ -9,6 +9,7 @@ from draw import *
 from feature import *
 import numpy as np
 from sklearn import svm, neighbors
+from sklearn.ensemble import RandomForestClassifier
 import random
 import json
 import pickle
@@ -20,7 +21,7 @@ def parseCommand():
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
     parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
-        help = "specify which algorithm to use for classfication, candidates are svm/knn, default is knn.")
+        help = "specify which algorithm to use for classfication, candidates are svm/knn/rbf/rf/benchmark, rbf means svm using rbf kernel, rf means random tree, benchmark will try every algorithm and plot the score figure, default is knn.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
         help = "specify the filename flag of cfdna files, separated by semicolon. default is: cfdna")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
@@ -209,6 +210,9 @@ def main():
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "knn":
         model = neighbors.KNeighborsClassifier(leaf_size=100)
+        train(model, data, label, samples, options)
+    elif options.algorithm.lower() == "rf":
+        model = RandomForestClassifier(n_estimators=10)
         train(model, data, label, samples, options)
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
