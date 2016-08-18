@@ -45,18 +45,40 @@ def plot_data(data, filename, title):
             percents[ALL_BASES[b]][c] = float(data[c * base_num + b]) / float(total)
 
     x = range(1, cycles+1)
-    plt.figure(1)
-    plt.title(title, size=10)
+    plt.figure(1, figsize=(5.5,3))
+    plt.title(title[0:title.find('.')], size=10)
     plt.xlim(1, cycles)
-    max_y = 0.8
+    max_y = 0.35
+    min_y = 0.15
     for base in ALL_BASES:
         max_of_base = max(percents[base][0:cycles])
         max_y = max(max_y, max_of_base+0.05)
-    plt.ylim(0.0, max_y )
+        min_of_base = min(percents[base][0:cycles])
+        min_y = min(min_y, min_of_base-0.05)
+    plt.ylim(min_y, max_y )
     plt.ylabel('Ratio')
-    plt.xlabel('Cycle')
+    #plt.xlabel('Cycle')
     for base in ALL_BASES:
-        plt.plot(x, percents[base][0:cycles], color = colors[base], label=base, alpha=0.5, linewidth=2)
-    plt.legend(loc='upper right', ncol=5)
+        plt.plot(x, percents[base][0:cycles], color = colors[base], label=base, alpha=0.5, linewidth=2, marker='o', markeredgewidth=0.0, markersize=4)
+    #plt.legend(loc='upper right', ncol=5)
+    plt.savefig(filename)
+    plt.close(1)
+
+def plot_benchmark(scores_arr, algorithms_arr, filename):
+    colors = ['#FF6600', '#009933', '#2244AA', '#552299', '#11BBDD']
+    linestyles = ['-', '--', ':']
+    passes = len(scores_arr[0])
+
+    x = range(1, passes+1)
+    title = "Benchmark Result"
+    plt.figure(1)
+    plt.title(title, size=10)
+    plt.xlim(1, passes)
+    plt.ylim(0.9, 1.001)
+    plt.ylabel('Score')
+    plt.xlabel('Validation')
+    for i in xrange(len(scores_arr)):
+        plt.plot(x, scores_arr[i], color = colors[i%5], label=algorithms_arr[i], alpha=0.5, linewidth=2, linestyle = linestyles[i%3])
+    plt.legend(loc='lower left')
     plt.savefig(filename)
     plt.close(1)

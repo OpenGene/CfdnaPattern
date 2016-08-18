@@ -225,10 +225,12 @@ def main():
         model = GaussianNB()
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "benchmark":
-        names = ["KNN","SVM Linear", "SVM RBF", "Random Forrest", "Gaussian Naive Bayes"]
-        models = [neighbors.KNeighborsClassifier(leaf_size=100), svm.LinearSVC(), svm.SVC(kernel='rbf'), RandomForestClassifier(n_estimators=20), GaussianNB()]
+        print("\nstarting benchmark...")
+        names = ["KNN", "Random Forrest","SVM Linear", "Gaussian Naive Bayes", "SVM RBF"]
+        models = [neighbors.KNeighborsClassifier(leaf_size=100), RandomForestClassifier(n_estimators=20), svm.LinearSVC(), GaussianNB(), svm.SVC(kernel='rbf')]
         scores_arr = [train(model, data, label, samples, options, True) for model in models]
-        print(scores_arr)
+        print("ploting benchmark result...")
+        plot_benchmark(scores_arr, names, "benchmark.png")
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
 
