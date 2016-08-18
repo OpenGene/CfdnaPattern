@@ -10,6 +10,8 @@ from feature import *
 import numpy as np
 from sklearn import svm, neighbors
 from sklearn.ensemble import RandomForestClassifier
+from sklearn import linear_model
+from sklearn.naive_bayes import GaussianNB
 import random
 import json
 import pickle
@@ -21,7 +23,7 @@ def parseCommand():
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
     parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
-        help = "specify which algorithm to use for classfication, candidates are svm/knn/rbf/rf/benchmark, rbf means svm using rbf kernel, rf means random tree, benchmark will try every algorithm and plot the score figure, default is knn.")
+        help = "specify which algorithm to use for classfication, candidates are svm/knn/rbf/rf/gnb/benchmark, rbf means svm using rbf kernel, rf means random forrest, gnb means Gaussian Naive Bayes, benchmark will try every algorithm and plot the score figure, default is knn.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
         help = "specify the filename flag of cfdna files, separated by semicolon. default is: cfdna")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
@@ -54,12 +56,12 @@ def preprocess(options):
     if os.path.exists(json_file_name) and os.access(json_file_name, os.R_OK):
         json_file = open(json_file_name, "r")
         json_loaded = json.loads(json_file.read())
-        print("\nfound cache.json, loading it now...")
+        print("\nfound feature cache (cache.json), loading it now...")
         if options.no_cache_check or len(json_loaded["fq_files"]) == len(fq_files):
             data = json_loaded["data"]
             label = json_loaded["label"]
             samples = json_loaded["samples"]
-            print("cache is valid, if you want to do training again, delete cache.json")
+            print("feature cache is valid, if you want to do feature extraction again, delete cache.json")
             return data, label, samples
         else:
             print("cache is invalid")
@@ -142,8 +144,9 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
 
     return training_set, validation_set
 
-def train(model, data, label, samples, options):
-    print("\ntraining and validating for " + str(options.passes) + " times...")
+def train(model, data, label, samples, options, benchmark = False):
+    if not benchmark:
+        print("\ntraining and validating for " + str(options.passes) + " times...")
     total_score = 0
     scores = []
     wrong_files = []
@@ -165,17 +168,18 @@ def train(model, data, label, samples, options):
                 if validation_set["samples"][v] not in wrong_files:
                     wrong_files.append(validation_set["samples"][v])
                     wrong_data.append(validation_set["data"][v])
+    if not benchmark:
+        print("scores of all " + str(options.passes) + " passes:")
+        print(scores)
+        print("\naverage score: " + str(total_score/options.passes))
+        print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
+        print(" ".join(wrong_files))
 
-    print("scores of all " + str(options.passes) + " passes:")
-    print(scores)
-    print("\naverage score: " + str(total_score/options.passes))
-    print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
-    print(" ".join(wrong_files))
+        print("\nplotting figures for files with wrong predictions...")
+        plot_data_list(wrong_files, wrong_data, "train_fig")
 
-    print("\nplotting figures for files with wrong predictions...")
-    plot_data_list(wrong_files, wrong_data, "train_fig")
-
-    save_model(model, options)
+        save_model(model, options)
+    return sorted(scores, reverse=True)
 
 def save_model(model, options):
     print("\nsave model to: " + options.model_file)
@@ -212,8 +216,19 @@ def main():
         model = neighbors.KNeighborsClassifier(leaf_size=100)
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "rf":
-        model = RandomForestClassifier(n_estimators=10)
+        model = RandomForestClassifier(n_estimators=20)
         train(model, data, label, samples, options)
+    elif options.algorithm.lower() == "rbf":
+        model = svm.SVC(kernel='rbf')
+        train(model, data, label, samples, options)
+    elif options.algorithm.lower() == "gnb":
+        model = GaussianNB()
+        train(model, data, label, samples, options)
+    elif options.algorithm.lower() == "benchmark":
+        names = ["KNN","SVM Linear", "SVM RBF", "Random Forrest", "Gaussian Naive Bayes"]
+        models = [neighbors.KNeighborsClassifier(leaf_size=100), svm.LinearSVC(), svm.SVC(kernel='rbf'), RandomForestClassifier(n_estimators=20), GaussianNB()]
+        scores_arr = [train(model, data, label, samples, options, True) for model in models]
+        print(scores_arr)
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")
 
