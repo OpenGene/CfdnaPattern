@@ -9,6 +9,9 @@ try:
     # fix matplotlib DISPLAY issue
     matplotlib.use('Agg')
     import matplotlib.pyplot as plt
+    matplotlib.rc('axes',edgecolor='#AAAAAA', labelcolor='#666666')
+    matplotlib.rc('xtick',color='#666666')
+    matplotlib.rc('ytick',color='#666666')
 except Exception:
     HAVE_MATPLOTLIB = False
 
@@ -45,7 +48,7 @@ def plot_data(data, filename, title):
             percents[ALL_BASES[b]][c] = float(data[c * base_num + b]) / float(total)
 
     x = range(1, cycles+1)
-    plt.figure(1, figsize=(5.5,3))
+    plt.figure(1, figsize=(5.5,3), edgecolor='#cccccc')
     plt.title(title[0:title.find('.')], size=10)
     plt.xlim(1, cycles)
     max_y = 0.35
@@ -72,11 +75,11 @@ def plot_benchmark(scores_arr, algorithms_arr, filename):
     x = range(1, passes+1)
     title = "Benchmark Result"
     plt.figure(1)
-    plt.title(title, size=10)
+    plt.title(title, size=20, color='#333333')
     plt.xlim(1, passes)
     plt.ylim(0.9, 1.001)
-    plt.ylabel('Score')
-    plt.xlabel('Validation')
+    plt.ylabel('Score', size=20, color='#333333')
+    plt.xlabel('Validation', size=20, color='#333333')
     for i in xrange(len(scores_arr)):
         plt.plot(x, scores_arr[i], color = colors[i%5], label=algorithms_arr[i], alpha=0.5, linewidth=2, linestyle = linestyles[i%3])
     plt.legend(loc='lower left')
