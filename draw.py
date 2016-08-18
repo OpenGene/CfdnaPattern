@@ -56,7 +56,7 @@ def plot_data(data, filename, title):
     plt.ylabel('Ratio')
     plt.xlabel('Cycle')
     for base in ALL_BASES:
-        plt.plot(x, percents[base][0:cycles], color = colors[base], label=base, alpha=0.5)
+        plt.plot(x, percents[base][0:cycles], color = colors[base], label=base, alpha=0.5, linewidth=2)
     plt.legend(loc='upper right', ncol=5)
     plt.savefig(filename)
     plt.close(1)
