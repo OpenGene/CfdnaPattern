@@ -48,7 +48,10 @@ Options:
                         specify which file to store the built model.
   -a ALGORITHM, --algorithm=ALGORITHM
                         specify which algorithm to use for classfication,
-                        candidates are svm/knn, default is knn.
+                        candidates are svm/knn/rbf/rf/gnb/benchmark, rbf means
+                        svm using rbf kernel, rf means random forest, gnb
+                        means Gaussian Naive Bayes, benchmark will try every
+                        algorithm and plot the score figure, default is knn.
   -c CFDNA_FLAG, --cfdna_flag=CFDNA_FLAG
                         specify the filename flag of cfdna files, separated by
                         semicolon. default is: cfdna
