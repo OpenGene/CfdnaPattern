@@ -23,7 +23,7 @@ def parseCommand():
     parser.add_option("-m", "--model", dest = "model_file", default = "cfdna.model",
         help = "specify which file to store the built model.")
     parser.add_option("-a", "--algorithm", dest = "algorithm", default = "knn",
-        help = "specify which algorithm to use for classfication, candidates are svm/knn/rbf/rf/gnb/benchmark, rbf means svm using rbf kernel, rf means random forrest, gnb means Gaussian Naive Bayes, benchmark will try every algorithm and plot the score figure, default is knn.")
+        help = "specify which algorithm to use for classfication, candidates are svm/knn/rbf/rf/gnb/benchmark, rbf means svm using rbf kernel, rf means random forest, gnb means Gaussian Naive Bayes, benchmark will try every algorithm and plot the score figure, default is knn.")
     parser.add_option("-c", "--cfdna_flag", dest = "cfdna_flag", default = "cfdna",
         help = "specify the filename flag of cfdna files, separated by semicolon. default is: cfdna")
     parser.add_option("-o", "--other_flag", dest = "other_flag", default = "gdna;ffpe",
@@ -226,7 +226,7 @@ def main():
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "benchmark":
         print("\nstarting benchmark...")
-        names = ["KNN", "Random Forrest","SVM Linear", "Gaussian Naive Bayes", "SVM RBF"]
+        names = ["KNN", "Random Forest","SVM Linear Kernel", "Gaussian Naive Bayes", "SVM RBF Kernel"]
         models = [neighbors.KNeighborsClassifier(leaf_size=100), RandomForestClassifier(n_estimators=20), svm.LinearSVC(), GaussianNB(), svm.SVC(kernel='rbf')]
         scores_arr = [train(model, data, label, samples, options, True) for model in models]
         print("ploting benchmark result...")
