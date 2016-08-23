@@ -4,7 +4,7 @@ Pattern Recognition for Cell-free DNA
 # Predict a fastq is cfdna or not
 ```shell
 # predict a single file
-python predict.py <singlefastq_file>
+python predict.py <single_fastq_file>
 
 # predict files
 python predict.py <fastq_file1> <fastq_file2> ... 
@@ -16,14 +16,14 @@ python predict.py *.fq
 ***warning: this tool doesn't work for trimmed fastq***
 
 ## prediction output
-For each file in the command line, this tool will output a line `<prediction>: <filename>`, like
+For each file given in the command line, this tool will output a line `<prediction>: <filename>`, like
 ```
 cfdna: /fq/160220_NS500713_0040_AHVNG2BGXX/20160220-cfdna-001_S1_R1_001.fastq.gz
 cfdna: /fq/160220_NS500713_0040_AHVNG2BGXX/20160220-cfdna-001_S1_R2_001.fastq.gz
 not-cfdna: /fq/160220_NS500713_0040_AHVNG2BGXX/20160220-gdna-002_S2_R1_001.fastq.gz
 not-cfdna: /fq/160220_NS500713_0040_AHVNG2BGXX/20160220-gdna-002_S2_R2_001.fastq.gz
 ```
-Add `-q` to enable quite mode, in which it will only output:
+Add `-q` or `--quite` to enable quite output mode, in which it will only output:
 * a file with name of `cfdna`, but prediction is `not-cfdna`
 * a file without name of `cfdna`, but prediction is `cfdna`
 
