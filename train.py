@@ -90,6 +90,8 @@ def preprocess(options):
         elif is_file_type(fq, other_flags):
             data.append(feature)
             label.append(0)
+        else:
+            continue
         samples.append(fq)
 
     if len(samples)<=2:
