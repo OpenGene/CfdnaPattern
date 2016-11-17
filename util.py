@@ -16,3 +16,11 @@ def get_arg_files():
             if not is_to_skip(path):
                 files.append(path)
     return files
+
+def has_adapter_sequenced(data):
+    # work around for skipping the data with 6bp index, sequenced in 8bp index setting
+    count = 0
+    for i in range(8):
+        if data[i]>0.7:
+            count += 1
+    return count >= 1

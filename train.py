@@ -79,6 +79,9 @@ def preprocess(options):
         extractor.extract()
         feature = extractor.feature()
 
+        if has_adapter_sequenced(feature):
+            continue
+
         if feature == None:
             print("======== Warning: bad feature from:")
             print(fq)
