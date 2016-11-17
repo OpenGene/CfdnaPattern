@@ -1,4 +1,5 @@
 # Byte-compiled / optimized / DLL files
+skip.py
 .DS_Store
 *_fig
 *figures
