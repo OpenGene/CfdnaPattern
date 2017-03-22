@@ -156,7 +156,7 @@ def train(model, data, label, samples, options, benchmark = False):
     wrong_files = []
     wrong_data = []
     for i in xrange(options.passes):
-        print(i)
+        print(str(i+1) + " / " + str(options.passes));
         training_set, validation_set = random_separate(data, label, samples)
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
