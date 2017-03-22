@@ -150,13 +150,13 @@ def random_separate(data, label, samples, training_set_percentage = 0.8):
     return training_set, validation_set
 
 def train(model, data, label, samples, options, benchmark = False):
-    if not benchmark:
-        print("\ntraining and validating for " + str(options.passes) + " times...")
+    print("\ntraining and validating for " + str(options.passes) + " times...")
     total_score = 0
     scores = []
     wrong_files = []
     wrong_data = []
     for i in xrange(options.passes):
+        print(i)
         training_set, validation_set = random_separate(data, label, samples)
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
@@ -233,8 +233,11 @@ def main():
         print("\nstarting benchmark...")
         names = ["KNN", "Random Forest","SVM Linear Kernel", "Gaussian Naive Bayes", "SVM RBF Kernel"]
         models = [neighbors.KNeighborsClassifier(leaf_size=100), RandomForestClassifier(n_estimators=20), svm.LinearSVC(), GaussianNB(), svm.SVC(kernel='rbf')]
-        scores_arr = [train(model, data, label, samples, options, True) for model in models]
-        print("ploting benchmark result...")
+        scores_arr = []
+        for m in xrange(len(models)):
+            print("\nbenchmark with: " + names[m])
+            scores_arr.append(train(models[m], data, label, samples, options, True))
+        print("\nploting benchmark result...")
         plot_benchmark(scores_arr, names, "benchmark.png")
     else:
         print("algorithm " + options.algorithm + " is not supported, please use svm/knn")

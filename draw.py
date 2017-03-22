@@ -74,12 +74,12 @@ def plot_benchmark(scores_arr, algorithms_arr, filename):
 
     x = range(1, passes+1)
     title = "Benchmark Result"
-    plt.figure(1)
+    plt.figure(1, figsize=(8,8))
     plt.title(title, size=20, color='#333333')
     plt.xlim(1, passes)
-    plt.ylim(0.9, 1.001)
-    plt.ylabel('Score', size=20, color='#333333')
-    plt.xlabel('Validation', size=20, color='#333333')
+    plt.ylim(0.95, 1.001)
+    plt.ylabel('Score', size=16, color='#333333')
+    plt.xlabel('Validation pass (sorted by score)', size=16, color='#333333')
     for i in xrange(len(scores_arr)):
         plt.plot(x, scores_arr[i], color = colors[i%5], label=algorithms_arr[i], alpha=0.5, linewidth=2, linestyle = linestyles[i%3])
     plt.legend(loc='lower left')
