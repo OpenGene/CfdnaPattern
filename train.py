@@ -15,7 +15,6 @@ from sklearn.naive_bayes import GaussianNB
 import random
 import json
 import pickle
-from sklearn.model_selection import ShuffleSplit
 
 def parseCommand():
     usage = "extract the features, and train the model, from the training set of fastq files. \n\npython training.py <fastq_files> [options] "
@@ -119,12 +118,15 @@ def preprocess(options):
 
     return data, label, samples
 
-def random_separate(data, label, samples, training_set_percentage = 0.8):
+def bootstrap_split(data, label, samples, training_set_percentage = 0.8):
     training_set = {"data":[], "label":[], "samples":[]}
     validation_set = {"data":[], "label":[], "samples":[]}
     total_num = len(data)
-    
-    ss = ShuffleSplit(n_splits=3, test_size=0.25, random_state=0)
+    training_num = int(round(total_num * training_set_percentage))
+    if training_num == total_num:
+        training_num -= 1
+    if training_num < 2:
+        training_num = 2
 
     # we should make sure the training set contains both positive and negative samples
     while( len(np.unique(training_set["label"])) <= 1 ):
@@ -153,23 +155,9 @@ def train(model, data, label, samples, options, benchmark = False):
     scores = []
     wrong_files = []
     wrong_data = []
-    total_num = len(data)
-    
-    ss = ShuffleSplit(n_splits=options.passes, test_size=0.2, random_state=0)
-    passno = 0
-    for train_index, test_index in ss.split(np.arange(total_num)):
-        print(str(passno+1) + " / " + str(options.passes));
-        passno += 1
-
-        training_set = {}
-        validation_set = {}
-        training_set['data'] = [data[i] for i in train_index]
-        validation_set['data'] = [data[i] for i in test_index]
-        training_set['label'] = [label[i] for i in train_index]
-        validation_set['label'] = [label[i] for i in test_index]
-        training_set['samples'] = [samples[i] for i in train_index]
-        validation_set['samples'] = [samples[i] for i in test_index]
-
+    for i in xrange(options.passes):
+        print(str(i+1) + " / " + str(options.passes));
+        training_set, validation_set = bootstrap_split(data, label, samples)
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
         score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
