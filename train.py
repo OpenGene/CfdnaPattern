@@ -12,6 +12,7 @@ from sklearn import svm, neighbors
 from sklearn.ensemble import RandomForestClassifier
 from sklearn import linear_model
 from sklearn.naive_bayes import GaussianNB
+from sklearn.preprocessing import normalize
 import random
 import json
 import pickle
@@ -214,10 +215,10 @@ def main():
         sys.exit(1)
 
     if options.algorithm.lower() == "svm":
-        model = svm.LinearSVC()
+        model = svm.LinearSVC(penalty='l2', dual=True, tol=1e-4, max_iter=1000)
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "knn":
-        model = neighbors.KNeighborsClassifier(leaf_size=100)
+        model = neighbors.KNeighborsClassifier(n_neighbors=8, weights='distance', leaf_size=100)
         train(model, data, label, samples, options)
     elif options.algorithm.lower() == "rf":
         model = RandomForestClassifier(n_estimators=20)
@@ -231,7 +232,11 @@ def main():
     elif options.algorithm.lower() == "benchmark":
         print("\nstarting benchmark...")
         names = ["KNN", "Random Forest","SVM Linear Kernel", "Gaussian Naive Bayes", "SVM RBF Kernel"]
-        models = [neighbors.KNeighborsClassifier(leaf_size=100), RandomForestClassifier(n_estimators=20), svm.LinearSVC(), GaussianNB(), svm.SVC(kernel='rbf')]
+        models = [neighbors.KNeighborsClassifier(n_neighbors=8, weights='distance', leaf_size=100), 
+            RandomForestClassifier(n_estimators=20), 
+            svm.LinearSVC(penalty='l2', dual=True, tol=1e-4, max_iter=1000), 
+            GaussianNB(), 
+            svm.SVC(kernel='rbf')]
         scores_arr = []
         for m in xrange(len(models)):
             print("\nbenchmark with: " + names[m])
