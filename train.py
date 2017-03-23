@@ -118,19 +118,16 @@ def preprocess(options):
 
     return data, label, samples
 
-def bootstrap_split(data, label, samples, training_set_percentage = 0.8):
+def bootstrap_split(data, label, samples):
     training_set = {"data":[], "label":[], "samples":[]}
     validation_set = {"data":[], "label":[], "samples":[]}
     total_num = len(data)
-    training_num = int(round(total_num * training_set_percentage))
-    if training_num == total_num:
-        training_num -= 1
-    if training_num < 2:
-        training_num = 2
 
     # we should make sure the training set contains both positive and negative samples
     while( len(np.unique(training_set["label"])) <= 1 ):
-        training_ids = random.sample([x for x in xrange(total_num)], training_num)
+        training_ids = np.random.choice(total_num, size = total_num, replace=True)
+        training_set_percentage = len(np.unique(training_ids)) / float(total_num)
+        print("bootstrap sampling: " + str(training_set_percentage) + " trainning set, " + str(1.0-training_set_percentage) + " validating set")
         training_set["data"] = []
         training_set["label"] = []
         training_set["samples"] = []
@@ -160,11 +157,13 @@ def train(model, data, label, samples, options, benchmark = False):
         training_set, validation_set = bootstrap_split(data, label, samples)
         model.fit(np.array(training_set["data"]), np.array(training_set["label"]))
         # get scores
-        score = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        score_train = model.score(np.array(training_set["data"]), np.array(training_set["label"]))
+        score_boot = model.score(np.array(validation_set["data"]), np.array(validation_set["label"]))
+        score = 0.632 * score_boot + 0.368 * score_train
         total_score += score
         scores.append(score)
 
-        # predict
+        # get wrongly predicted elements
         arr = np.array(validation_set["data"])
         for v in xrange(len(validation_set["data"])):
             result = model.predict(arr[v:v+1])
