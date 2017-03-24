@@ -77,7 +77,7 @@ def plot_benchmark(scores_arr, algorithms_arr, filename):
     plt.figure(1, figsize=(8,8))
     plt.title(title, size=20, color='#333333')
     plt.xlim(1, passes)
-    plt.ylim(0.95, 1.001)
+    plt.ylim(0.97, 1.001)
     plt.ylabel('Score', size=16, color='#333333')
     plt.xlabel('Validation pass (sorted by score)', size=16, color='#333333')
     for i in xrange(len(scores_arr)):

@@ -241,6 +241,8 @@ def main():
         for m in xrange(len(models)):
             print("\nbenchmark with: " + names[m])
             scores_arr.append(train(models[m], data, label, samples, options, True))
+        for m in xrange(len(models)):
+            print("\nbenchmark mean score with: " + names[m] + " mean " + str(np.mean(scores_arr[m])) + ", std " + str(np.std(scores_arr[m])))
         print("\nploting benchmark result...")
         plot_benchmark(scores_arr, names, "benchmark.png")
     else:
