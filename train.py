@@ -176,7 +176,7 @@ def train(model, data, label, samples, options, benchmark = False):
     if not benchmark:
         print("scores of all " + str(options.passes) + " passes:")
         print(scores)
-        print("\naverage score: " + str(total_score/options.passes))
+        print("\nscore mean: " + str(np.mean(scores)) + ", std: " + str(np.std(scores)))
         print("\n" + str(len(wrong_files)) + " files with at least 1 wrong prediction:")
         print(" ".join(wrong_files))
 
