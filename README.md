@@ -37,6 +37,10 @@ This tool has a pre-trained model (`cfdna.model`), which can be used for predict
 ```shell
 python train.py /fastq_folder/*.fq
 ```
+
+# Citation
+If you used CfdnaPattern for your publication, please cite: https://doi.org/10.1109/TCBB.2017.2723388
+
 Full options:
 ```shell
 python training.py <fastq_files> [options] 
